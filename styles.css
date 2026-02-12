@@ -1,0 +1,165 @@
+:root {
+  --p1:#E74C3C;--p2:#3498DB;--p3:#9B59B6;--p4:#2ECC71;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  font-family:'Source Serif 4',Georgia,serif;
+  background-image:url("assets/img/img_e9be93ee8be7dca1.jpg");
+  background-size:cover;background-position:center;background-attachment:fixed;
+  color:#2C1810;min-height:100vh;overflow-x:hidden;
+}
+.game-container{max-width:1200px;margin:0 auto;padding:10px 10px 16px}
+.header{text-align:center;padding:8px 0}
+.header img{max-width:440px;width:75%;height:auto;opacity:.95}
+
+/* === GRID === */
+.game-layout{display:grid;grid-template-columns:208px 1fr 286px;gap:10px;margin-top:8px}
+
+/* === BOARD === */
+.board-container{position:relative;width:100%;max-width:684px;aspect-ratio:1;margin:0 auto}
+.board-container img.board-img{width:100%;height:100%;display:block;border-radius:6px}
+.sq-overlay{position:absolute;display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:flex-end;gap:1px;padding:2px;pointer-events:none}
+.sq-overlay.active{outline:2px solid #FFD700;outline-offset:-1px;border-radius:7px;background:rgba(255,215,0,.15)}
+.board-token{
+  width:16px;height:16px;border-radius:50%;
+  border:2px solid rgba(255,255,255,.95);
+  font-size:7px;display:flex;align-items:center;justify-content:center;
+  color:white;font-weight:bold;font-family:'JetBrains Mono',monospace;
+  box-shadow:0 2px 6px rgba(0,0,0,.5);transition:all .4s;pointer-events:auto;
+}
+
+/* === LEFT: PLAYER CARDS === */
+.players-panel{display:flex;flex-direction:column;gap:10px}
+.player-card{
+  background:#DCCFB8;border-radius:10px;padding:10px 12px;
+  height:133px;transition:all .3s;overflow:hidden;
+  box-shadow:0 1px 4px rgba(0,0,0,.15);
+}
+.player-card.active{outline:2px solid #FFD700;outline-offset:-2px;box-shadow:0 0 14px rgba(255,215,0,.25);transform:scale(1.02)}
+.player-card.inactive{opacity:.45}
+.player-header{display:flex;align-items:center;gap:7px;margin-bottom:4px}
+.player-dot{
+  width:32px;height:32px;border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  border:2px solid rgba(0,0,0,.12);
+}
+.player-dot svg{width:18px;height:18px;fill:white}
+.player-name{font-family:'Playfair Display',serif;font-weight:700;font-size:.78em;color:#3a2010}
+.player-desc{font-size:.55em;color:#8B5E3C;font-style:italic}
+.player-info{font-size:.58em;font-family:'JetBrains Mono',monospace;color:#6B3A2A;margin-top:2px;display:flex;gap:5px;flex-wrap:wrap}
+.pi-tag{background:rgba(0,0,0,.08);border-radius:4px;padding:1px 5px;font-size:.9em}
+.frag-row{display:flex;gap:3px;margin-top:3px}
+.frag-pip{width:14px;height:14px;border-radius:3px;border:1.5px dashed rgba(0,0,0,.15);background:rgba(0,0,0,.04)}
+.frag-pip.filled{background:#607D8B;border:1.5px solid #455A64}
+.status-line{font-size:.55em;color:#C0392B;font-style:italic;min-height:12px;margin-top:2px}
+.turn-badge{
+  background:#FF925A;border-radius:10px;padding:14px;
+  color:white;font-family:'JetBrains Mono',monospace;
+  font-weight:700;font-size:1.1em;text-align:center;
+  height:112px;display:flex;align-items:center;justify-content:center;
+  box-shadow:0 1px 4px rgba(0,0,0,.15);
+}
+
+/* === RIGHT: DICE === */
+.right-panel{display:flex;flex-direction:column;gap:12px}
+.dice-area{
+  display:flex;flex-direction:column;justify-content:flex-end;
+  border-radius:10px;padding:14px;height:253px;
+  position:relative;
+}
+.dice-display{
+  position:absolute;top:14px;right:14px;
+  width:80px;height:81px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'JetBrains Mono',monospace;font-size:28px;font-weight:900;
+  color:#3a2010;
+}
+.dice-display.rolling{animation:shake .1s infinite}
+@keyframes shake{0%,100%{transform:rotate(0) scale(1)}25%{transform:rotate(-8deg) scale(1.05)}75%{transform:rotate(8deg) scale(1.05)}}
+.dice-inner{display:flex;flex-direction:column;padding-top:8px;margin-top:auto}
+.turn-info{font-size:.68em;color:#6B3A2A;font-style:italic;margin-bottom:8px}
+.roll-btn{
+  font-family:'JetBrains Mono',monospace;font-weight:700;font-size:.8em;
+  padding:12px 0;border-radius:7px;border:none;cursor:pointer;
+  color:#E8D4A8;background:#192917;width:100%;max-width:242px;
+  box-shadow:0 3px 10px rgba(0,0,0,.3);transition:all .2s;
+  text-transform:uppercase;letter-spacing:2px;
+}
+.roll-btn:hover:not(:disabled){transform:translateY(-1px);background:#2a4528}
+.roll-btn:disabled{opacity:.35;cursor:not-allowed}
+
+/* === RIGHT: FIELD REPORT === */
+.log-area{
+  border-radius:11px;padding:50px 14px 14px;flex:1;
+  display:flex;flex-direction:column;height:419px;
+  position:relative;
+}
+.log-entries{flex:1;overflow-y:auto;font-size:.62em;line-height:1.5;color:#6B3A2A;padding-top:4px}
+.log-entries::-webkit-scrollbar{width:3px}
+.log-entries::-webkit-scrollbar-thumb{background:rgba(0,0,0,.15);border-radius:2px}
+.log-entry{padding:2px 0;border-bottom:1px solid rgba(0,0,0,.04)}
+.log-entry .lp{font-weight:700}
+.log-quote{
+  font-size:.62em;font-style:italic;color:#3a2010;
+  text-align:center;
+  margin-top:auto;padding:8px 10px;
+  position:relative;
+}
+
+.action-btn{
+  font-family:'Source Serif 4',serif;font-weight:600;font-size:.78em;
+  padding:6px 12px;border-radius:6px;border:none;cursor:pointer;
+  color:white;margin:3px;transition:all .2s;
+}
+.action-btn:hover{transform:translateY(-1px);filter:brightness(1.1)}
+.action-btn.gold{background:linear-gradient(135deg,#D4A847,#B8912E);color:#3a2010}
+.action-btn.red{background:linear-gradient(135deg,#C0392B,#962D22)}
+.action-btn.green{background:linear-gradient(135deg,#5D8233,#4A6828)}
+.action-btn.blue{background:linear-gradient(135deg,#2E6B8A,#1E5570)}
+
+/* === OVERLAYS === */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:100;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.overlay.show{display:flex}
+.card-popup{width:300px;border-radius:14px;padding:22px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.5);animation:cardIn .35s cubic-bezier(.34,1.56,.64,1)}
+@keyframes cardIn{from{transform:scale(.7) rotateY(90deg);opacity:0}to{transform:scale(1) rotateY(0);opacity:1}}
+.card-popup.harvest{background:linear-gradient(145deg,#FFF8DC,#F5E6A8);border:3px solid #D4A847}
+.card-popup.sabotage{background:linear-gradient(145deg,#FFE8E5,#FFCCCC);border:3px solid #C0392B}
+.card-popup .ct{font-family:'JetBrains Mono',monospace;font-size:.58em;text-transform:uppercase;letter-spacing:3px;margin-bottom:5px}
+.card-popup .cn{font-family:'Playfair Display',serif;font-size:1.2em;font-weight:900;margin-bottom:8px}
+.card-popup .ce{font-size:.82em;line-height:1.5;margin-bottom:10px;color:#444}
+.card-popup .cf{font-size:.68em;font-style:italic;color:#888;margin-bottom:10px}
+.choice-popup{background:linear-gradient(145deg,#FDF6E9,#F5E6C8);border-radius:14px;padding:20px;max-width:340px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.5);border:3px solid #D4A847}
+.choice-popup h3{font-family:'Playfair Display',serif;margin-bottom:10px;color:#3a2010;font-size:.95em}
+.choice-popup .cbtns{display:flex;flex-direction:column;gap:6px}
+.win-popup{text-align:center;animation:wb .6s cubic-bezier(.34,1.56,.64,1)}
+@keyframes wb{from{transform:scale(.3);opacity:0}to{transform:scale(1);opacity:1}}
+.win-popup h1{font-family:'Playfair Display',serif;font-size:2.2em;color:#D4A847;margin:14px 0 6px}
+.win-popup .wn{font-family:'Playfair Display',serif;font-size:1.3em;color:white;margin-bottom:8px}
+.win-popup .wq{font-style:italic;color:#E8D4A8;font-size:.9em;max-width:380px;margin:0 auto 16px}
+
+
+/* === FIELD REPORT (SVG shell + HTML scroll overlay) === */
+.field-report-wrap{
+  position:relative;
+  width:100%;
+}
+.field-report-svg svg{
+  width:100%;
+  height:auto;
+  display:block;
+}
+.fieldReportLog{
+  position:absolute;
+  overflow-y:auto;
+  box-sizing:border-box;
+  padding:10px 12px;
+  background:transparent;
+  font-family:'Source Serif 4',Georgia,serif;
+  font-size:14px;
+  line-height:18px;
+  color:rgba(0,0,0,.86);
+  scrollbar-width:thin;
+}
+.fieldReportLog::-webkit-scrollbar{width:8px}
+.fieldReportLog::-webkit-scrollbar-thumb{border-radius:8px;background:rgba(0,0,0,.18)}
+.fieldReportLog::-webkit-scrollbar-track{background:transparent}

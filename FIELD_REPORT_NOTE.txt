@@ -1,0 +1,1 @@
+If the overlay doesn't align, open assets/svg/field-report.svg and add id="slot_log" to the invisible guide <rect>.

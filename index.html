@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hawkstone(d) — Pull the Pint from the Stone</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Source+Serif+4:wght@400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --gold:#D4A847;--gold-dark:#B8912E;--gold-glow:rgba(212,168,71,0.35);
+  --wheat:#F5E6C8;--wheat-light:#FDF6E9;--wheat-dark:#E8D4A8;
+  --brown:#6B3A2A;--brown-dark:#4A2518;--brown-light:#8B5E3C;
+  --red:#C0392B;--red-dark:#962D22;--green:#5D8233;--green-dark:#4A6828;
+  --blue:#2E6B8A;--grey:#7F8C8D;--grey-light:#B0BEC5;
+  --p1:#E74C3C;--p2:#3498DB;--p3:#2ECC71;--p4:#F39C12;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Source Serif 4',Georgia,serif;background:var(--brown-dark);color:#2C1810;min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(85deg,transparent,transparent 40px,rgba(212,168,71,.03) 40px,rgba(212,168,71,.03) 41px),repeating-linear-gradient(95deg,transparent,transparent 60px,rgba(212,168,71,.02) 60px,rgba(212,168,71,.02) 61px),radial-gradient(ellipse at 30% 20%,rgba(245,230,200,.15),transparent 60%),linear-gradient(175deg,#3D1F0E,#2A1508 50%,#1E0F05);z-index:-1}
+.game-container{max-width:1440px;margin:0 auto;padding:16px 20px}
+.header{text-align:center;padding:14px 0 8px}
+.header h1{font-family:'Playfair Display',serif;font-weight:900;font-size:2.6em;color:var(--gold);text-shadow:0 2px 12px rgba(0,0,0,.6);letter-spacing:3px}
+.header h1 .paren{color:var(--wheat-dark);opacity:.65;font-size:.85em}
+.header .tagline{font-style:italic;color:var(--wheat-dark);font-size:.9em;margin-top:2px;opacity:.75;letter-spacing:.5px}
+.game-layout{display:grid;grid-template-columns:250px 1fr 290px;gap:14px;margin-top:10px}
+
+/* SVG icons */
+.ico{display:inline-flex;align-items:center;justify-content:center;vertical-align:middle}
+.ico svg{fill:currentColor}
+
+/* Player cards */
+.players-panel{display:flex;flex-direction:column;gap:8px}
+.player-card{background:linear-gradient(135deg,rgba(245,230,200,.95),rgba(232,212,168,.9));border-radius:10px;padding:12px;border:2px solid var(--wheat-dark);transition:all .3s;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+.player-card.active{border-color:var(--gold);box-shadow:0 0 20px var(--gold-glow),0 4px 12px rgba(0,0,0,.3);transform:scale(1.02)}
+.player-card.inactive{opacity:.55}
+.player-header{display:flex;align-items:center;gap:10px;margin-bottom:7px}
+.player-icon{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;flex-shrink:0}
+.player-icon .ico svg{width:18px;height:18px;fill:white}
+.player-name{font-family:'Playfair Display',serif;font-weight:700;font-size:.88em;color:var(--brown-dark)}
+.player-creature{font-size:.65em;color:var(--brown-light);font-style:italic}
+.player-stats{display:flex;gap:5px;flex-wrap:wrap}
+.stat-badge{background:rgba(74,37,24,.1);border-radius:5px;padding:2px 7px;font-size:.68em;font-family:'JetBrains Mono',monospace;color:var(--brown);display:flex;align-items:center;gap:3px}
+.stat-badge .ico svg{width:11px;height:11px;fill:var(--brown)}
+.fragments-display{display:flex;gap:3px;margin-top:5px}
+.frag-slot{width:20px;height:20px;border-radius:3px;border:2px dashed var(--grey-light);display:flex;align-items:center;justify-content:center;transition:all .3s;color:var(--grey-light)}
+.frag-slot .ico svg{width:10px;height:10px}
+.frag-slot.filled{background:linear-gradient(135deg,#78909C,#607D8B);border:2px solid #546E7A;color:white;box-shadow:0 1px 4px rgba(0,0,0,.3)}
+.status-effects{margin-top:4px;font-size:.65em;color:var(--red);font-style:italic;min-height:15px;display:flex;flex-wrap:wrap;gap:2px 8px}
+.status-tag{display:inline-flex;align-items:center;gap:3px}
+.status-tag .ico svg{width:10px;height:10px;fill:var(--red)}
+
+/* Board */
+.board-wrapper{position:relative;background:linear-gradient(145deg,#7A9E2E,#6B8C25,#5C7A1E);border-radius:14px;padding:16px;border:3px solid var(--brown);box-shadow:0 8px 32px rgba(0,0,0,.4),inset 0 0 80px rgba(0,0,0,.12);min-height:560px;overflow:hidden}
+.board-wrapper::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(78deg,transparent,transparent 6px,rgba(255,255,200,.05) 6px,rgba(255,255,200,.05) 7px),repeating-linear-gradient(102deg,transparent,transparent 10px,rgba(255,255,200,.03) 10px,rgba(255,255,200,.03) 11px);pointer-events:none;border-radius:11px}
+.hawkstone-centre{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:130px;height:130px;z-index:5}
+.hawkstone-rock{width:100%;height:100%;background:radial-gradient(ellipse at 40% 35%,#9E9E9E,#757575 40%,#616161 70%,#424242);border-radius:45% 55% 50% 48%/52% 48% 55% 45%;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 6px 20px rgba(0,0,0,.5),inset 0 -3px 8px rgba(0,0,0,.3),inset 0 3px 8px rgba(255,255,255,.15);border:2px solid #555}
+.hawkstone-rock .h-beer{color:white}.hawkstone-rock .h-beer svg{width:30px;height:30px;fill:white}
+.hawkstone-rock .stone-text{font-family:'Playfair Display',serif;font-size:9px;color:var(--wheat);text-transform:uppercase;letter-spacing:2.5px;margin-top:2px;text-shadow:0 1px 2px rgba(0,0,0,.5)}
+.hawkstone-slots{display:flex;gap:4px;margin-top:4px}
+.hawkstone-slot{width:14px;height:14px;border-radius:2px;background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.15);transition:all .5s}
+.hawkstone-slot.winner-filled{background:var(--gold);box-shadow:0 0 8px var(--gold)}
+
+.board-grid{display:grid;position:relative;width:100%;aspect-ratio:1.3}
+.square{position:absolute;width:68px;height:68px;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:default;transition:all .3s;border:2px solid rgba(0,0,0,.15);box-shadow:0 2px 8px rgba(0,0,0,.2);z-index:2;color:white}
+.square .sq-num{font-family:'JetBrains Mono',monospace;font-size:7px;opacity:.35;position:absolute;top:3px;left:5px;color:white}
+.square .sq-icon{display:flex;align-items:center;justify-content:center}
+.square .sq-icon svg{width:24px;height:24px;fill:white}
+.square .sq-label{font-family:'JetBrains Mono',monospace;font-size:6px;text-transform:uppercase;letter-spacing:1px;margin-top:3px;color:rgba(255,255,255,.75)}
+.square.harvest{background:linear-gradient(135deg,#C49B2A,#A88420)}
+.square.sabotage{background:linear-gradient(135deg,#B83324,#9A2A1E)}
+.square.fragment{background:linear-gradient(135deg,#607D8B,#4A6572);border-color:var(--gold);box-shadow:0 0 12px var(--gold-glow)}
+.square.pub{background:linear-gradient(135deg,#6D4C41,#5A3E35)}
+.square.shortcut{background:linear-gradient(135deg,#4A8033,#3D6B2A)}
+.square.mudfield{background:linear-gradient(135deg,#5D4037,#4A332C)}
+.square.blessing{background:linear-gradient(135deg,#2878A6,#1E6088);box-shadow:0 0 12px rgba(40,120,166,.35)}
+.square.start{background:linear-gradient(135deg,var(--gold),var(--gold-dark))}
+
+.token-container{position:absolute;bottom:2px;right:2px;display:flex;flex-wrap:wrap;gap:1px;z-index:10}
+.board-token{width:16px;height:16px;border-radius:50%;border:1.5px solid rgba(255,255,255,.9);font-size:8px;display:flex;align-items:center;justify-content:center;color:white;font-weight:bold;font-family:'JetBrains Mono',monospace;box-shadow:0 1px 4px rgba(0,0,0,.4);transition:all .4s}
+
+/* Right panel */
+.right-panel{display:flex;flex-direction:column;gap:10px}
+.dice-area{background:linear-gradient(135deg,rgba(245,230,200,.95),rgba(232,212,168,.9));border-radius:10px;padding:14px;text-align:center;border:2px solid var(--wheat-dark);box-shadow:0 2px 8px rgba(0,0,0,.2)}
+.dice-area h3{font-family:'Playfair Display',serif;font-size:.85em;color:var(--brown-dark);margin-bottom:8px;display:flex;align-items:center;justify-content:center;gap:6px}
+.dice-area h3 .ico svg{width:16px;height:16px;fill:var(--brown-dark)}
+.dice-display{width:68px;height:68px;background:white;border-radius:12px;margin:0 auto 10px;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:30px;font-weight:900;color:var(--brown-dark);box-shadow:0 3px 10px rgba(0,0,0,.12);border:2px solid #DDD;transition:transform .15s}
+.dice-display.rolling{animation:diceShake .1s infinite}
+@keyframes diceShake{0%,100%{transform:rotate(0) scale(1)}25%{transform:rotate(-8deg) scale(1.05)}75%{transform:rotate(8deg) scale(1.05)}}
+.roll-btn{font-family:'Playfair Display',serif;font-weight:700;font-size:.95em;padding:9px 26px;border-radius:8px;border:none;cursor:pointer;color:white;background:linear-gradient(135deg,var(--brown),var(--brown-dark));box-shadow:0 3px 10px rgba(0,0,0,.3);transition:all .2s;text-transform:uppercase;letter-spacing:1.5px}
+.roll-btn:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 5px 15px rgba(0,0,0,.4)}
+.roll-btn:disabled{opacity:.35;cursor:not-allowed}
+.action-btn{font-family:'Source Serif 4',serif;font-weight:600;font-size:.82em;padding:7px 14px;border-radius:6px;border:none;cursor:pointer;color:white;margin:3px;transition:all .2s}
+.action-btn:hover{transform:translateY(-1px);filter:brightness(1.1)}
+.action-btn.gold{background:linear-gradient(135deg,var(--gold),var(--gold-dark));color:var(--brown-dark)}
+.action-btn.red{background:linear-gradient(135deg,var(--red),var(--red-dark))}
+.action-btn.green{background:linear-gradient(135deg,var(--green),var(--green-dark))}
+.action-btn.blue{background:linear-gradient(135deg,var(--blue),#1E5570)}
+
+.log-area{background:linear-gradient(135deg,rgba(245,230,200,.95),rgba(232,212,168,.9));border-radius:10px;padding:12px;border:2px solid var(--wheat-dark);flex:1;display:flex;flex-direction:column;box-shadow:0 2px 8px rgba(0,0,0,.2);max-height:360px}
+.log-area h3{font-family:'Playfair Display',serif;font-size:.8em;color:var(--brown-dark);margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.log-area h3 .ico svg{width:14px;height:14px;fill:var(--brown-dark)}
+.log-entries{flex:1;overflow-y:auto;font-size:.7em;line-height:1.5;color:var(--brown)}
+.log-entries::-webkit-scrollbar{width:4px}
+.log-entries::-webkit-scrollbar-thumb{background:var(--wheat-dark);border-radius:2px}
+.log-entry{padding:3px 0;border-bottom:1px solid rgba(0,0,0,.05)}
+.log-entry .log-player{font-weight:700}
+
+/* Popups */
+.card-overlay,.choice-overlay,.winner-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:100;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.card-overlay.show,.choice-overlay.show,.winner-overlay.show{display:flex}
+.choice-overlay{z-index:110}
+.winner-overlay{z-index:200;background:rgba(0,0,0,.88)}
+.card-popup{width:340px;border-radius:14px;padding:26px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.5);animation:cardIn .35s cubic-bezier(.34,1.56,.64,1)}
+@keyframes cardIn{from{transform:scale(.7) rotateY(90deg);opacity:0}to{transform:scale(1) rotateY(0);opacity:1}}
+.card-popup.harvest-card{background:linear-gradient(145deg,#FFF8DC,#F5E6A8);border:3px solid var(--gold)}
+.card-popup.sabotage-card{background:linear-gradient(145deg,#FFE8E5,#FFCCCC);border:3px solid var(--red)}
+.card-popup .card-type{font-family:'JetBrains Mono',monospace;font-size:.65em;text-transform:uppercase;letter-spacing:3px;margin-bottom:6px;display:flex;align-items:center;justify-content:center;gap:6px}
+.card-popup .card-type .ico svg{width:14px;height:14px}
+.card-popup .card-title{font-family:'Playfair Display',serif;font-size:1.35em;font-weight:900;margin-bottom:10px}
+.card-popup .card-effect{font-size:.88em;line-height:1.6;margin-bottom:14px;color:#444}
+.card-popup .card-flavour{font-size:.72em;font-style:italic;color:#888;margin-bottom:14px}
+.choice-popup{background:linear-gradient(145deg,var(--wheat-light),var(--wheat));border-radius:14px;padding:22px;max-width:360px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.5);border:3px solid var(--gold)}
+.choice-popup h3{font-family:'Playfair Display',serif;margin-bottom:12px;color:var(--brown-dark);font-size:1em}
+.choice-popup .choice-btns{display:flex;flex-direction:column;gap:7px}
+.winner-popup{text-align:center;animation:winBoom .6s cubic-bezier(.34,1.56,.64,1)}
+@keyframes winBoom{from{transform:scale(.3);opacity:0}to{transform:scale(1);opacity:1}}
+.winner-popup .w-beer svg{width:70px;height:70px;fill:white}
+.winner-popup h1{font-family:'Playfair Display',serif;font-size:2.4em;color:var(--gold);margin:14px 0 6px;text-shadow:0 2px 10px rgba(212,168,71,.5)}
+.winner-popup .winner-name{font-family:'Playfair Display',serif;font-size:1.4em;color:white;margin-bottom:8px}
+.winner-popup .winner-quote{font-style:italic;color:var(--wheat-dark);font-size:.95em;max-width:400px;margin:0 auto 18px}
+@media(max-width:1100px){.game-layout{grid-template-columns:1fr}.players-panel{flex-direction:row;flex-wrap:wrap}.player-card{flex:1;min-width:200px}}
+</style>
+</head>
+<body>
+<div class="game-container">
+  <div class="header">
+    <h1>HAWKSTONE<span class="paren">(D)</span></h1>
+    <div class="tagline">"Beer is hard to make. Harder to earn. Easy to drink."</div>
+  </div>
+  <div class="game-layout">
+    <div class="players-panel" id="playersPanel"></div>
+    <div class="board-area">
+      <div class="board-wrapper">
+        <div class="board-grid" id="boardGrid"></div>
+        <div class="hawkstone-centre">
+          <div class="hawkstone-rock">
+            <div class="h-beer" id="centreBeer"></div>
+            <div class="stone-text">Hawkstone</div>
+            <div class="hawkstone-slots" id="hawkstoneSlots"><div class="hawkstone-slot"></div><div class="hawkstone-slot"></div><div class="hawkstone-slot"></div><div class="hawkstone-slot"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="right-panel">
+      <div class="dice-area">
+        <h3><span class="ico" id="diceHeaderIco"></span> The Die</h3>
+        <div class="dice-display" id="diceDisplay">?</div>
+        <div style="margin-bottom:6px"><button class="roll-btn" id="rollBtn" onclick="rollDice()">Roll</button></div>
+        <div id="actionArea" style="min-height:34px"></div>
+        <div id="turnInfo" style="font-size:.78em;color:var(--brown);margin-top:6px"></div>
+      </div>
+      <div class="log-area">
+        <h3><span class="ico" id="logHeaderIco"></span> Field Report</h3>
+        <div class="log-entries" id="logEntries"></div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="card-overlay" id="cardOverlay"><div class="card-popup" id="cardPopup"><div class="card-type" id="cardType"></div><div class="card-title" id="cardTitle"></div><div class="card-effect" id="cardEffect"></div><div class="card-flavour" id="cardFlavour"></div><button class="action-btn gold" onclick="closeCard()">Right then.</button></div></div>
+<div class="choice-overlay" id="choiceOverlay"><div class="choice-popup"><h3 id="choiceTitle"></h3><div class="choice-btns" id="choiceBtns"></div></div></div>
+<div class="winner-overlay" id="winnerOverlay"><div class="winner-popup"><div class="w-beer" id="winBeer"></div><h1>PULL THE PINT!</h1><div class="winner-name" id="winnerName"></div><div class="winner-quote" id="winnerQuote"></div><button class="action-btn gold" style="font-size:1.05em;padding:11px 30px" onclick="location.reload()">Play Again</button></div></div>
+
+<script>
+// ========== SVG ICONS (flat white line style) ==========
+const I={
+wheat:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 22V12m0 0c-3 0-5.5-2.5-5-5 2.5-.5 5 2 5 5m0 0c0-3 2.5-5.5 5-5-.5 2.5-2 5-5 5M12 7c-2 0-4-2-3.5-4C10 2.5 12 4.5 12 7m0 0c0-2.5 2-4.5 3.5-4-.5 2-1.5 4-3.5 4"/></svg>`,
+skull:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="10" r="8"/><path d="M8 16v4h2v-2h4v2h2v-4M9 9a1 1 0 102 0 1 1 0 00-2 0m4 0a1 1 0 102 0 1 1 0 00-2 0"/></svg>`,
+diamond:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 12l10 10 10-10z"/></svg>`,
+mud:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 17h4m4 0h10M5 21h14M7 13h10M12 3c-1 4-5 6-5 10h10c0-4-4-6-5-10z"/></svg>`,
+beer:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 8h1a4 4 0 010 8h-1M5 8h12v9a4 4 0 01-4 4H9a4 4 0 01-4-4V8zm0-3h12m-9 7v4m3-4v4"/></svg>`,
+tractor:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="6" cy="18" r="3"/><circle cx="18" cy="18" r="3"/><path d="M6 15V8h6l3 4h3v3m-9-7V4h3"/></svg>`,
+star:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z"/></svg>`,
+flag:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 15V3c3-2 6 0 8-2s5 0 8 2c-3 2-5 0-8 2s-5-4-8-2zM4 22v-7"/></svg>`,
+ox:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 8c0-2 1-4 3-4m10 4c0-2-1-4-3-4"/><circle cx="12" cy="12" r="6"/><path d="M10 14h4m-3 2c.4.4 1 .7 1.5.7s1.1-.3 1.5-.7"/></svg>`,
+crow:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 4c-2 0-3 1-3 3l-3 3-6-1c-2 0-3 1-3 3h6l3 3v5h2v-5l4-4c2 0 3-1 3-3s-1-4-3-4z"/><circle cx="17" cy="6" r=".8" fill="currentColor"/></svg>`,
+kernel:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2v20M9 6l3-2 3 2M8 10l4-2 4 2M7 14l5-2 5 2M9 18l3-1 3 1"/></svg>`,
+plough:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="7" r="3"/><path d="M12 10v4m-3 0h6l1 4H8l1-4m3 4v4"/></svg>`,
+dice:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8" cy="8" r="1" fill="currentColor"/><circle cx="12" cy="12" r="1" fill="currentColor"/><circle cx="16" cy="16" r="1" fill="currentColor"/></svg>`,
+scroll:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h8M8 9h2"/></svg>`,
+pin:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>`,
+loop:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M17 1l4 4-4 4M3 11V9a4 4 0 014-4h14M7 23l-4-4 4-4m14 0v2a4 4 0 01-4 4H3"/></svg>`,
+pause:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>`,
+block:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M4.93 4.93l14.14 14.14"/></svg>`,
+down:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14m-6-6l6 6 6-6"/></svg>`,
+wrench:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94z"/></svg>`,
+doubleDice:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="5" width="13" height="13" rx="2"/><rect x="10" y="1" width="13" height="13" rx="2"/></svg>`,
+reverse:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 14l-4-4 4-4m-4 4h11a4 4 0 010 8h-1"/></svg>`,
+cap:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 12h8"/></svg>`,
+mask:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 12s2-5 10-5 10 5 10 5-2 5-10 5-10-5-10-5z"/><circle cx="12" cy="12" r="3"/></svg>`,
+cards:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="4" y="4" width="12" height="16" rx="2"/><path d="M8 2h8a2 2 0 012 2v12"/></svg>`,
+};
+
+function ico(key,w,h){w=w||16;h=h||w;return `<span class="ico" style="width:${w}px;height:${h}px">${I[key]||''}</span>`;}
+
+const SQ_ICO={start:'flag',harvest:'wheat',sabotage:'skull',fragment:'diamond',mudfield:'mud',pub:'beer',shortcut:'tractor',blessing:'star'};
+const PL_ICO=['ox','crow','kernel','plough'];
+
+const PLAYERS=[
+{id:0,name:'Barley the Ox',ik:'ox',color:'var(--p1)',ch:'#E74C3C',desc:'Massive. Slow. Gasping for a pint.'},
+{id:1,name:'Hops McGraw',ik:'crow',color:'var(--p2)',ch:'#3498DB',desc:'Stole a beer from a moving tractor.'},
+{id:2,name:'Kernel Fury',ik:'kernel',color:'var(--p3)',ch:'#2ECC71',desc:'Sentient wheat. Immediately wanted a drink.'},
+{id:3,name:'The Ploughman',ik:'plough',color:'var(--p4)',ch:'#F39C12',desc:'Walking this field since 1847.'}
+];
+
+const SQ=[
+{t:'start',l:'START'},{t:'harvest',l:'Harvest'},{t:'sabotage',l:'Sabotage'},{t:'fragment',l:'FRAGMENT'},
+{t:'mudfield',l:'Mud'},{t:'harvest',l:'Harvest'},{t:'sabotage',l:'Sabotage'},{t:'harvest',l:'Harvest'},
+{t:'pub',l:'THE PUB'},{t:'harvest',l:'Harvest'},{t:'shortcut',l:'Tractor!'},{t:'fragment',l:'FRAGMENT'},
+{t:'sabotage',l:'Sabotage'},{t:'harvest',l:'Harvest'},{t:'mudfield',l:'Mud'},{t:'blessing',l:'Blessing'},
+{t:'harvest',l:'Harvest'},{t:'sabotage',l:'Sabotage'},{t:'harvest',l:'Harvest'},{t:'fragment',l:'FRAGMENT'},
+{t:'mudfield',l:'Mud'},{t:'harvest',l:'Harvest'},{t:'pub',l:'THE PUB'},{t:'sabotage',l:'Sabotage'},
+{t:'shortcut',l:'Tractor!'},{t:'harvest',l:'Harvest'},{t:'sabotage',l:'Sabotage'},{t:'fragment',l:'FRAGMENT'},
+{t:'mudfield',l:'Mud'},{t:'blessing',l:'Blessing'},{t:'sabotage',l:'Sabotage'},{t:'harvest',l:'Harvest'}
+];
+
+function pN(i){return `<span style="color:${PLAYERS[i].ch};font-weight:700">${PLAYERS[i].name}</span>`;}
+
+// ========== CARDS ==========
+const HC=[
+{n:'Good Yield',e:'Move forward 3 spaces.',f:'The wheat gods smile upon you.',a:p=>{mv(p,3)}},
+{n:'Barley Surplus',e:'Take another turn immediately.',f:'The harvest waits for no one.',a:p=>{S.extra=true}},
+{n:'Rain Dance',e:'All OTHER players move back 2.',f:'Everyone else is now soggy.',a:p=>{oth(p).forEach(o=>mv(o,-2))}},
+{n:'Broken Tractor',e:'Miss your next turn.',f:"It's a Massey Ferguson. What did you expect?",a:p=>{S.p[p].skip=true}},
+{n:'Hops Inspection',e:'Roll 4+: move 4. Under 4: nothing.',f:'The inspector eyes your hops suspiciously.',a:p=>{pendRoll(p,4,()=>mv(p,4),()=>log(p,'The inspector is disappointed. Nothing happens.'))}},
+{n:'Bumper Harvest',e:'Move to nearest Fragment square ahead!',f:'Land directly on it. Yes, you collect it.',a:p=>{mvNextFrag(p)}},
+{n:'Wheat Thief!',e:'Player to your left: -2 next roll.',f:'Sticky fingers in the grain store.',a:p=>{let t=(p+1)%4;S.p[t].pen=2;log(p,`steals movement from ${pN(t)}`)}},
+{n:'Fermentation Delay',e:'Move back 4 spaces.',f:'The yeast is taking its time. As yeast does.',a:p=>{mv(p,-4)}},
+{n:'Scarecrow Malfunction',e:'Swap positions with any player!',f:'The scarecrow scared YOU.',a:p=>{pickPlayer(p,'Swap with whom?',t=>{swap(p,t)})}},
+{n:'Brewery Tour',e:'Skip to next Harvest square.',f:"You're learning the craft. Slowly.",a:p=>{mvNextType(p,'harvest')}},
+{n:'Subsidy Approved',e:'Gain 1 Stone Fragment!',f:'Bureaucracy finally works.',a:p=>{giveFrag(p)}},
+{n:'Grain Elevator Jam',e:'ALL players move back 1.',f:'The whole operation grinds to a halt.',a:p=>{for(let i=0;i<4;i++)mv(i,-1)}},
+{n:'Perfect Pint Preview',e:'Move forward 2.',f:'It was beautiful. And cold.',a:p=>{mv(p,2)}},
+{n:'Sunny Spell',e:'Double turn!',f:"The weather's nice for once.",a:p=>{S.extra=true}},
+{n:'Combine Harvester Race',e:'You and nearest player both roll. High +4, low -2.',f:'Nobody wins a tie in farming.',a:p=>{harvRace(p)}},
+{n:'Early Frost',e:'Lose 1 Stone Fragment.',f:'Nature is cruel and indifferent.',a:p=>{loseFrag(p)}},
+{n:'Beer Festival Invite',e:'Move forward 6!',f:"You've been invited somewhere important.",a:p=>{mv(p,6)}},
+{n:'Apprentice Brewer',e:'Next turn: roll 2 dice, pick higher.',f:'Unreliable help, but help.',a:p=>{S.p[p].dbl=true}},
+{n:'Tasting Committee',e:'All roll. Lowest loses a fragment.',f:'The committee is harsh but fair.',a:p=>{tasteCom(p)}},
+{n:'Muscle Memory',e:'Move to any square within 6.',f:'You know this field.',a:p=>{pickSqRange(p,6)}}
+];
+
+const SC=[
+{n:'Stolen Hops',e:'Steal 1 fragment from any player.',f:'Look them in the eye.',a:p=>{pickFrag(p,'Steal from whom?',t=>{steal(p,t)})}},
+{n:'Blocked Path',e:'Choose a player: must roll 4+ to move.',f:'A fallen tree. How convenient.',a:p=>{pickPlayer(p,'Block whom?',t=>{S.p[t].blk=true;log(p,`blocks ${pN(t)}'s path!`)})}},
+{n:'Tractor Redirect',e:'Send any player to nearest Pub.',f:"They didn't want to go, but here they are.",a:p=>{pickPlayer(p,'Send who to the pub?',t=>{toPub(t);log(p,`sends ${pN(t)} to the pub!`)})}},
+{n:'Scarecrow Swap',e:'Swap with player furthest ahead.',f:"If that's you... self-sabotage achieved.",a:p=>{let t=furthest(p);if(t!==p)swap(p,t);else log(p,'is already furthest ahead. Self-sabotage achieved.')}},
+{n:'Mud Splash',e:'Choose a player: back 3.',f:'You drove through a puddle. On purpose.',a:p=>{pickPlayer(p,'Splash whom?',t=>{mv(t,-3);log(p,`splashes ${pN(t)}!`)})}},
+{n:'Harvest Tax',e:'All others: -1 next roll.',f:'Tax is theft, but also strategy.',a:p=>{oth(p).forEach(o=>S.p[o].pen=(S.p[o].pen||0)+1);log(p,'imposes a harvest tax!')}},
+{n:'Crow Attack',e:'Choose a player: next card discarded.',f:'The crows got to it first.',a:p=>{pickPlayer(p,'Whose card gets eaten?',t=>{S.p[t].cardBlk=true;log(p,`sends crows after ${pN(t)}!`)})}},
+{n:'Field Fire',e:'All within 5 spaces move to you.',f:'Controlled burn. Mostly.',a:p=>{fieldFire(p)}},
+{n:'Slippery Slope',e:'Most fragments player loses 1.',f:'Tall poppy syndrome.',a:p=>{let t=mostFrag(p);if(t>=0){loseFrag(t);log(p,`targets ${pN(t)} — tall poppy!`)}}},
+{n:'Pub Detour',e:'Choose a player: pub + miss turn.',f:'"Just a quick one," they said.',a:p=>{pickPlayer(p,'Send who on a detour?',t=>{toPub(t);S.p[t].skip=true;log(p,`sends ${pN(t)} on a pub detour!`)})}},
+{n:'Equipment Failure',e:'Choose a player: next roll halved.',f:'Their boots are broken.',a:p=>{pickPlayer(p,'Whose equipment fails?',t=>{S.p[t].half=true;log(p,`breaks ${pN(t)}'s equipment!`)})}},
+{n:'Boundary Dispute',e:'You and chosen player roll off.',f:'If you lose, you asked for it.',a:p=>{pickPlayer(p,'Dispute with whom?',t=>{bDispute(p,t)})}},
+{n:'Bribe the Inspector',e:'Pay 1 frag: move any player back 8.',f:'Corruption, but make it rural.',a:p=>{if(S.p[p].frags>0){pickPlayer(p,'Bribe target? (costs 1 frag)',t=>{loseFrag(p);mv(t,-8);log(p,`bribes against ${pN(t)}!`)})}else{log(p,'has no fragments to bribe with.')}}},
+{n:'Pesticide Spill',e:'Players on Harvest/Mud/Shortcut back 2.',f:'Environmental disaster.',a:p=>{for(let i=0;i<4;i++){let sq=SQ[S.p[i].pos%32];if(['harvest','mudfield','shortcut'].includes(sq.t))mv(i,-2)}}},
+{n:'Fox in the Henhouse',e:'Steal 1 from whoever has most.',f:'The fox plays favourites.',a:p=>{let t=mostFrag(p);if(t>=0&&t!==p)steal(p,t);else log(p,'finds no one worth robbing.')}},
+{n:'Wrong Turn',e:'Choose a player: backward next turn.',f:"They're lost. In a wheat field.",a:p=>{pickPlayer(p,'Who takes a wrong turn?',t=>{S.p[t].rev=true;log(p,`sends ${pN(t)} the wrong way!`)})}},
+{n:'Union Strike',e:'ALL capped at 3 movement next turn.',f:'Solidarity. Unfortunately.',a:p=>{for(let i=0;i<4;i++)S.p[i].cap=3;log(p,'calls a union strike!')}},
+{n:'Suspicious Scarecrow',e:'Swap a player with player to their left.',f:'Musical chairs, wheat field edition.',a:p=>{pickPlayer(p,'Who gets scarecrow\'d?',t=>{let l=(t+1)%4;swap(t,l);log(p,`swaps ${pN(t)} with ${pN(l)}!`)})}},
+{n:'Fake Fragment',e:'Counts until challenged. Bluffing is farming.',f:'Is it real? Only one way to find out.',a:p=>{S.p[p].fake=true;S.p[p].frags++;log(p,'plays a Fake Fragment!');checkWin(p)}},
+{n:'Total Chaos',e:'ALL pass ALL fragments left.',f:'Redistributive agriculture.',a:p=>{chaos()}}
+];
+
+// ========== STATE ==========
+let S={cur:0,p:[],phase:'roll',extra:false,pend:null,cardCb:null,dv:null};
+function initS(){S.cur=0;S.extra=false;S.phase='roll';S.p=PLAYERS.map(()=>({pos:0,frags:0,skip:false,blk:false,pen:0,half:false,dbl:false,rev:false,cap:0,cardBlk:false,fake:false,laps:0}))}
+
+// ========== BOARD ==========
+function layBoard(){
+const g=document.getElementById('boardGrid');g.innerHTML='';
+const sz=68,pad=6;
+const w=g.clientWidth||760,h=g.clientHeight||580;
+const uw=w-sz-pad*2,uh=h-sz-pad*2;
+const tc=9,rc=7,bc=9,lc=7;
+function gp(i){
+if(i<tc)return{x:pad+(uw/(tc-1))*i,y:pad};
+if(i<tc+rc){let j=i-tc;return{x:pad+uw,y:pad+(uh/(rc+1))*(j+1)}}
+if(i<tc+rc+bc){let j=i-tc-rc;return{x:pad+uw-(uw/(bc-1))*j,y:pad+uh}}
+let j=i-tc-rc-bc;return{x:pad,y:pad+uh-(uh/(lc+1))*(j+1)}
+}
+for(let i=0;i<32;i++){const sq=SQ[i],ik=SQ_ICO[sq.t]||'flag',d=document.createElement('div');
+d.className=`square ${sq.t}`;d.id=`sq-${i}`;
+d.innerHTML=`<span class="sq-num">${i}</span><span class="sq-icon">${I[ik]}</span><span class="sq-label">${sq.l}</span><div class="token-container" id="tk-${i}"></div>`;
+const p=gp(i);d.style.left=p.x+'px';d.style.top=p.y+'px';g.appendChild(d)}
+}
+function renderTk(){for(let i=0;i<32;i++){const c=document.getElementById(`tk-${i}`);if(c)c.innerHTML=''}
+for(let p=0;p<4;p++){const pos=S.p[p].pos%32,c=document.getElementById(`tk-${pos}`);
+if(c){const t=document.createElement('div');t.className='board-token';t.style.background=PLAYERS[p].ch;t.textContent=p+1;c.appendChild(t)}}}
+
+// ========== PLAYERS ==========
+function renderP(){
+const panel=document.getElementById('playersPanel');panel.innerHTML='';
+for(let i=0;i<4;i++){const p=PLAYERS[i],s=S.p[i],act=i===S.cur&&S.phase!=='gameover';
+const c=document.createElement('div');c.className=`player-card ${act?'active':'inactive'}`;
+let st='';
+const tag=(ik,tx)=>`<span class="status-tag">${ico(ik,10)} ${tx}</span>`;
+if(s.skip)st+=tag('pause','Skipping');if(s.blk)st+=tag('block','Blocked 4+');
+if(s.pen>0)st+=tag('down',`-${s.pen} roll`);if(s.half)st+=tag('wrench','Half roll');
+if(s.dbl)st+=tag('doubleDice','2 dice');if(s.rev)st+=tag('reverse','Backward');
+if(s.cap>0)st+=tag('cap',`Max ${s.cap}`);if(s.fake)st+=tag('mask','Fake frag');
+if(s.cardBlk)st+=tag('cards','Card eaten');
+let fr='';for(let f=0;f<4;f++)fr+=`<div class="frag-slot ${f<s.frags?'filled':''}">${ico('diamond',10)}</div>`;
+c.innerHTML=`<div class="player-header"><div class="player-icon" style="background:${p.ch}">${ico(p.ik,18)}</div><div><div class="player-name">${p.name}</div><div class="player-creature">${p.desc}</div></div></div>
+<div class="player-stats"><span class="stat-badge">${ico('pin',11)} Sq ${s.pos%32}</span><span class="stat-badge">${ico('diamond',11)} ${s.frags}/4</span><span class="stat-badge">${ico('loop',11)} Lap ${s.laps}</span></div>
+<div class="fragments-display">${fr}</div><div class="status-effects">${st||'<span style="opacity:.4">—</span>'}</div>`;
+panel.appendChild(c)}}
+
+// ========== LOG ==========
+function log(p,msg){const l=document.getElementById('logEntries'),e=document.createElement('div');e.className='log-entry';
+e.innerHTML=p>=0?`<span class="log-player" style="color:${PLAYERS[p].ch}">${PLAYERS[p].name}</span> ${msg}`:`<em>${msg}</em>`;l.prepend(e)}
+function logR(h){const l=document.getElementById('logEntries'),e=document.createElement('div');e.className='log-entry';e.innerHTML=h;l.prepend(e)}
+function setTurn(t){document.getElementById('turnInfo').innerHTML=t||''}
+function setAct(h){document.getElementById('actionArea').innerHTML=h||''}
+
+// ========== DICE ==========
+function rollDice(){
+const p=S.cur,s=S.p[p];if(S.phase!=='roll')return;
+if(s.skip){s.skip=false;log(p,'misses this turn. The pub was too comfortable.');nextTurn();return}
+S.phase='rolling';document.getElementById('rollBtn').disabled=true;
+const dd=document.getElementById('diceDisplay');dd.classList.add('rolling');
+let r=15,iv=setInterval(()=>{dd.textContent=Math.floor(Math.random()*6)+1;r--;
+if(r<=0){clearInterval(iv);dd.classList.remove('rolling');
+let v;if(s.dbl){let r1=Math.floor(Math.random()*6)+1,r2=Math.floor(Math.random()*6)+1;v=Math.max(r1,r2);log(p,`double dice: ${r1} & ${r2} → ${v}`);s.dbl=false}else v=Math.floor(Math.random()*6)+1;
+if(s.pen>0){let o=v;v=Math.max(1,v-s.pen);log(p,`roll ${o}→${v} (penalty)`);s.pen=0}
+if(s.half){let o=v;v=Math.max(1,Math.floor(v/2));log(p,`roll halved ${o}→${v}`);s.half=false}
+if(s.cap>0){v=Math.min(v,s.cap);s.cap=0}
+dd.textContent=v;S.dv=v;
+if(s.blk){s.blk=false;if(v<4){log(p,`rolls ${v} — blocked! Needed 4+.`);nextTurn();return}log(p,`rolls ${v} — breaks through!`)}
+if(s.rev){v=-v;s.rev=false;log(p,`moves BACKWARD ${Math.abs(v)}!`)}else log(p,`rolls ${v}`);
+mv(p,v,true)}},60)}
+
+// ========== MOVEMENT ==========
+function mv(pl,sp,main){const s=S.p[pl];s.pos+=sp;if(s.pos<0)s.pos=32+(s.pos%32);
+if(main&&sp>0&&Math.floor(s.pos/32)>s.laps){s.laps=Math.floor(s.pos/32);log(pl,'completes a lap!')}
+renderTk();renderP();if(main)resolve(pl)}
+
+function resolve(pl){const s=S.p[pl],si=s.pos%32,sq=SQ[si];
+const el=document.getElementById(`sq-${si}`);if(el){el.style.transform='scale(1.12)';setTimeout(()=>el.style.transform='',500)}
+switch(sq.t){
+case'harvest':if(s.cardBlk){s.cardBlk=false;log(pl,'draws a card but the crows ate it!');nextTurn()}else drawCard(pl,'harvest');break;
+case'sabotage':if(s.cardBlk){s.cardBlk=false;log(pl,'draws a card but the crows ate it!');nextTurn()}else drawCard(pl,'sabotage');break;
+case'fragment':giveFrag(pl);log(pl,'lands on a Fragment square!');nextTurn();break;
+case'pub':log(pl,'stumbles into THE PUB. Misses next turn.');s.skip=true;nextTurn();break;
+case'shortcut':log(pl,'finds a tractor path! +5!');mv(pl,5);resolve(pl);return;
+case'mudfield':log(pl,'hits a mudfield!');pendRoll(pl,4,()=>{log(pl,'trudges through!');nextTurn()},()=>{log(pl,'STUCK in mud! Misses next turn.');s.skip=true;nextTurn()});return;
+case'blessing':log(pl,'receives a Hawkstone Blessing!');showChoice(pl,'Hawkstone Blessing:',[
+{text:'Steal a fragment',action:()=>{pickFrag(pl,'Steal from whom?',t=>{steal(pl,t)})}},
+{text:'Move to any Fragment square',action:()=>{pickAnySq(pl)}}],false);return;
+case'start':log(pl,'passes through start.');nextTurn();break;
+default:nextTurn()}}
+
+// ========== CARDS ==========
+function drawCard(pl,type){const deck=type==='harvest'?HC:SC,card=deck[Math.floor(Math.random()*deck.length)];
+showCardPopup(type,card,()=>{card.a(pl);if(S.phase==='resolving')nextTurn()})}
+function showCardPopup(type,card,cb){S.phase='card';const o=document.getElementById('cardOverlay'),p=document.getElementById('cardPopup');
+p.className=`card-popup ${type==='harvest'?'harvest-card':'sabotage-card'}`;
+const ik=type==='harvest'?'wheat':'skull',cl=type==='harvest'?'#8B6914':'#C0392B';
+document.getElementById('cardType').innerHTML=`<span class="ico" style="width:14px;height:14px;color:${cl}">${I[ik]}</span> ${type.toUpperCase()}`;
+document.getElementById('cardType').style.color=cl;
+document.getElementById('cardTitle').textContent=card.n;
+document.getElementById('cardTitle').style.color=type==='harvest'?'#6B4A00':'#962D22';
+document.getElementById('cardEffect').textContent=card.e;
+document.getElementById('cardFlavour').textContent=card.f;
+S.cardCb=cb;o.classList.add('show')}
+function closeCard(){document.getElementById('cardOverlay').classList.remove('show');
+if(S.cardCb){const cb=S.cardCb;S.cardCb=null;S.phase='resolving';cb()}}
+
+// ========== CHOICES ==========
+function showChoice(pl,title,opts,autoAdv=true){S.phase='choice';
+const o=document.getElementById('choiceOverlay');document.getElementById('choiceTitle').textContent=title;
+const b=document.getElementById('choiceBtns');b.innerHTML='';
+opts.forEach((opt,i)=>{const btn=document.createElement('button');btn.className=`action-btn ${['gold','blue','green','red'][i%4]}`;
+btn.textContent=opt.text;btn.onclick=()=>{o.classList.remove('show');S.phase='resolving_choice';opt.action();
+if(autoAdv&&S.phase==='resolving_choice')nextTurn()};b.appendChild(btn)});o.classList.add('show')}
+
+function pickPlayer(cp,title,cb){const opts=[];for(let i=0;i<4;i++)if(i!==cp)opts.push({text:PLAYERS[i].name,action:()=>cb(i)});showChoice(cp,title,opts)}
+function pickFrag(cp,title,cb){const opts=[];for(let i=0;i<4;i++)if(i!==cp&&S.p[i].frags>0)opts.push({text:`${PLAYERS[i].name} (${S.p[i].frags})`,action:()=>cb(i)});
+if(!opts.length){log(cp,'finds no one with fragments.');nextTurn();return}showChoice(cp,title,opts)}
+function pickSqRange(pl,range){const pos=S.p[pl].pos%32,opts=[];
+for(let d=-range;d<=range;d++){if(!d)continue;let t=((pos+d)%32+32)%32;if(SQ[t].t==='fragment')opts.push({text:`Sq ${t}: FRAGMENT`,action:()=>{S.p[pl].pos=(S.p[pl].pos-pos+t);if(S.p[pl].pos<0)S.p[pl].pos+=32;renderTk();renderP();resolve(pl)}})}
+if(!opts.length){opts.push({text:`+${range} forward`,action:()=>{mv(pl,range);nextTurn()}});opts.push({text:`${range} back`,action:()=>{mv(pl,-range);nextTurn()}})}
+showChoice(pl,'Move where?',opts,false)}
+function pickAnySq(pl){const opts=[];for(let i=0;i<32;i++)if(SQ[i].t==='fragment')opts.push({text:`Sq ${i}: FRAGMENT`,action:()=>{const b=Math.floor(S.p[pl].pos/32)*32;S.p[pl].pos=b+i;renderTk();renderP();resolve(pl)}});
+showChoice(pl,'Move to which Fragment?',opts,false)}
+
+// ========== FRAGMENTS ==========
+function giveFrag(pl){if(S.p[pl].frags<4){S.p[pl].frags++;log(pl,`gains a Fragment! (${S.p[pl].frags}/4)`);renderP();checkWin(pl)}}
+function loseFrag(pl){if(S.p[pl].frags>0){if(S.p[pl].fake){S.p[pl].fake=false;S.p[pl].frags--;log(pl,'loses Fake Fragment!')}else{S.p[pl].frags--;log(pl,`loses a Fragment! (${S.p[pl].frags}/4)`)}renderP()}}
+function steal(th,vi){if(S.p[vi].frags>0){if(S.p[vi].fake){S.p[vi].fake=false;S.p[vi].frags--;log(th,`steals from ${pN(vi)}... FAKE!`)}else{S.p[vi].frags--;S.p[th].frags=Math.min(4,S.p[th].frags+1);log(th,`steals from ${pN(vi)}! Cold-blooded.`)}renderP();checkWin(th)}}
+function chaos(){log(-1,'TOTAL CHAOS! Fragments pass left!');const f=S.p.map(p=>p.frags),fk=S.p.map(p=>p.fake);
+for(let i=0;i<4;i++){S.p[i].frags=f[(i+3)%4];S.p[i].fake=fk[(i+3)%4]}renderP();for(let i=0;i<4;i++)checkWin(i)}
+
+// ========== SPECIAL ACTIONS ==========
+function pendRoll(pl,th,ok,fail){S.phase='action';setAct(`<button class="action-btn gold" onclick="doPendRoll(${pl},${th})">Roll (need ${th}+)</button>`);S.pend={pl,th,ok,fail}}
+function doPendRoll(pl,th){const r=Math.floor(Math.random()*6)+1;document.getElementById('diceDisplay').textContent=r;log(pl,`rolls ${r} (needed ${th}+)`);setAct('');
+if(r>=th)S.pend.ok();else S.pend.fail();S.pend=null;if(S.phase==='action')nextTurn()}
+
+function mvNextFrag(pl){const pos=S.p[pl].pos%32;for(let d=1;d<32;d++){if(SQ[(pos+d)%32].t==='fragment'){mv(pl,d);return}}}
+function mvNextType(pl,type){const pos=S.p[pl].pos%32;for(let d=1;d<32;d++){if(SQ[(pos+d)%32].t===type){mv(pl,d);return}}}
+function toPub(pl){const pos=S.p[pl].pos%32;for(let d=1;d<32;d++){let t=(pos+d)%32;if(SQ[t].t==='pub'){const b=Math.floor(S.p[pl].pos/32)*32;S.p[pl].pos=b+t;S.p[pl].skip=true;renderTk();renderP();return}}}
+function swap(a,b){let t=S.p[a].pos;S.p[a].pos=S.p[b].pos;S.p[b].pos=t;log(-1,`${pN(a)} swaps with ${pN(b)}!`);renderTk();renderP()}
+function oth(p){return[0,1,2,3].filter(i=>i!==p)}
+function furthest(ex){let b=-1,bp=-1;for(let i=0;i<4;i++)if(S.p[i].pos>bp){bp=S.p[i].pos;b=i}return b}
+function mostFrag(ex){let b=-1,bf=0;for(let i=0;i<4;i++)if(i!==ex&&S.p[i].frags>bf){bf=S.p[i].frags;b=i}return b}
+function fieldFire(pl){const mp=S.p[pl].pos%32;let hit=false;for(let i=0;i<4;i++){if(i!==pl){const tp=S.p[i].pos%32,d=Math.min(Math.abs(mp-tp),32-Math.abs(mp-tp));
+if(d<=5){S.p[i].pos=Math.floor(S.p[i].pos/32)*32+mp;log(pl,`drags ${pN(i)} into the fire!`);hit=true}}}
+if(!hit)log(pl,'field fire fizzles. Anticlimactic.');renderTk();renderP()}
+function harvRace(pl){let nr=-1,md=999;const mp=S.p[pl].pos%32;for(let i=0;i<4;i++)if(i!==pl){const d=Math.min(Math.abs(mp-S.p[i].pos%32),32-Math.abs(mp-S.p[i].pos%32));if(d<md){md=d;nr=i}}
+if(nr<0)return;const r1=Math.floor(Math.random()*6)+1,r2=Math.floor(Math.random()*6)+1;
+log(-1,`HARVESTER RACE! ${pN(pl)}: ${r1} vs ${pN(nr)}: ${r2}`);
+if(r1>r2){mv(pl,4);mv(nr,-2)}else if(r2>r1){mv(nr,4);mv(pl,-2)}else{mv(pl,-2);mv(nr,-2);log(-1,'Tie! Both back.')}}
+function tasteCom(){const rs=[0,1,2,3].map(()=>Math.floor(Math.random()*6)+1);
+let m='TASTING: ';rs.forEach((r,i)=>m+=`${PLAYERS[i].name}:${r} `);logR(m);
+const mn=Math.min(...rs);for(let i=0;i<4;i++)if(rs[i]===mn)loseFrag(i)}
+function bDispute(pl,tg){const r1=Math.floor(Math.random()*6)+1,r2=Math.floor(Math.random()*6)+1;
+log(-1,`DISPUTE! ${pN(pl)}: ${r1} vs ${pN(tg)}: ${r2}`);
+if(r1>=r2){if(S.p[tg].pos>S.p[pl].pos)swap(pl,tg)}else{if(S.p[pl].pos>S.p[tg].pos)swap(pl,tg)}}
+
+// ========== WIN ==========
+function checkWin(pl){if(S.p[pl].frags>=4){S.phase='gameover';log(-1,`${PLAYERS[pl].name} has 4 fragments! PULL THE PINT!`);
+document.querySelectorAll('.hawkstone-slot').forEach((s,i)=>setTimeout(()=>s.classList.add('winner-filled'),i*300));
+setTimeout(()=>{document.getElementById('winBeer').innerHTML=I.beer;
+document.getElementById('winnerName').textContent=`${PLAYERS[pl].name} wins!`;
+document.getElementById('winnerQuote').textContent=["Beer. Because you've earned it, and the journey was preposterous.","And on that bombshell... it's time for a pint.","The wheat field was never the obstacle. It was the friends who sabotaged you.","That was harder than it had any right to be. Rather like actual farming."][pl];
+document.getElementById('winnerOverlay').classList.add('show')},1500)}}
+
+// ========== TURNS ==========
+function nextTurn(){if(S.phase==='gameover')return;
+if(S.extra){S.extra=false;log(S.cur,'takes another turn!');S.phase='roll';document.getElementById('rollBtn').disabled=false;setTurn(`${PLAYERS[S.cur].name}'s BONUS turn!`);renderP();return}
+S.cur=(S.cur+1)%4;S.phase='roll';document.getElementById('rollBtn').disabled=false;
+setTurn(`${PLAYERS[S.cur].name}'s turn`);setAct('');renderP();
+for(let i=0;i<4;i++){if(i!==S.cur&&S.p[i].fake){setAct(`<button class="action-btn red" onclick="chalFake(${i})" style="font-size:.72em">Challenge ${PLAYERS[i].name}?</button><button class="action-btn green" onclick="skipChal()" style="font-size:.72em">Ignore</button>`);S.phase='challenge';return}}}
+function chalFake(t){if(S.p[t].fake){S.p[t].fake=false;S.p[t].frags--;log(S.cur,`challenges ${pN(t)} — FAKE!`);renderP()}S.phase='roll';document.getElementById('rollBtn').disabled=false;setAct('')}
+function skipChal(){S.phase='roll';document.getElementById('rollBtn').disabled=false;setAct('')}
+
+// ========== INIT ==========
+function init(){
+document.getElementById('centreBeer').innerHTML=I.beer;
+document.getElementById('diceHeaderIco').innerHTML=I.dice;
+document.getElementById('logHeaderIco').innerHTML=I.scroll;
+initS();layBoard();renderTk();renderP();
+setTurn(`${PLAYERS[0].name} goes first`);
+log(-1,'The wheat field awaits. 4 Hawkstonians enter. 1 gets the beer.');
+log(-1,'"You\'d think getting a beer would be simple. You\'d think wrong."')}
+window.addEventListener('resize',()=>{layBoard();renderTk()});
+init();
+</script>
+</body>
+</html>
