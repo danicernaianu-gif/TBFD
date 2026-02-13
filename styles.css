@@ -9,7 +9,14 @@ body{
   color:#2C1810;min-height:100vh;overflow-x:hidden;
 }
 .game-container{max-width:1200px;margin:0 auto;padding:10px 10px 16px}
-.header{text-align:center;padding:8px 0}
+.header{
+  text-align:left;
+  padding:8px 0;
+}
+.header img{
+  margin-left:0;
+  display:block;
+}
 .header img{max-width:440px;width:75%;height:auto;opacity:.95}
 
 /* === GRID === */
