@@ -64,6 +64,8 @@ body{
 .right-panel{display:flex;flex-direction:column;gap:12px}
 .dice-area{
   display:flex;flex-direction:column;justify-content:flex-end;
+  background-image:url("assets/img/img_fe41d08cc7cb3092.png");
+  background-size:100% 100%;background-repeat:no-repeat;
   border-radius:10px;padding:14px;height:253px;
   position:relative;
 }
@@ -90,6 +92,8 @@ body{
 
 /* === RIGHT: FIELD REPORT === */
 .log-area{
+  background-image:url("assets/img/img_aec3f34369039611.png");
+  background-size:100% 100%;background-repeat:no-repeat;
   border-radius:11px;padding:50px 14px 14px;flex:1;
   display:flex;flex-direction:column;height:419px;
   position:relative;
@@ -153,7 +157,7 @@ body{
   overflow-y:auto;
   box-sizing:border-box;
   padding:10px 12px;
-  background:transparent;
+  background: rgba(245, 210, 95, 0.78); /* yellow paper */
   font-family:'Source Serif 4',Georgia,serif;
   font-size:14px;
   line-height:18px;
