@@ -212,3 +212,15 @@ body{
   color: rgba(0,0,0,.86);
   scrollbar-width: thin;
 }
+/* === Tweak 2: Die number emphasis === */
+#dd{
+  font-size: 48px;        /* try 44–56 if you want */
+  font-weight: 700;
+  line-height: 1;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 10px 14px;
+}
