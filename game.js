@@ -229,35 +229,9 @@ function positionOverlayFromSlot(svgEl, slotId, overlayEl, wrapEl){
 }
 
 let _frResizeTimer = null;
-async function initFieldReport(){
-  const wrap = document.getElementById('frw');
-  const host = document.getElementById('frSvg');
+function initFieldReport(){
   const overlay = document.getElementById('le');
-  if(!wrap || !host || !overlay) return;
-
-  try{
-    const svg = await injectSVGInto(host, 'assets/svg/field-report.svg');
-
-    const relayout = () => {
-      try{
-        positionOverlayFromSlot(svg, 'slot_log', overlay, wrap);
-        overlay.style.visibility = 'visible';
-      }catch(e){
-        console.warn(e);
-      }
-    };
-
-    relayout();
-    window.addEventListener('resize', () => {
-      clearTimeout(_frResizeTimer);
-      _frResizeTimer = setTimeout(relayout, 50);
-    });
-  }catch(e){
-    console.warn('Field report SVG failed to load:', e);
-    // Fallback: just show the HTML log in normal flow
-    overlay.style.position = 'static';
-    overlay.style.visibility = 'visible';
-  }
+  if(overlay) overlay.style.visibility = 'visible';
 }
 
 initFieldReport();

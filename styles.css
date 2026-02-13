@@ -92,11 +92,14 @@ body{
 
 /* === RIGHT: FIELD REPORT === */
 .log-area{
-  background-image:url("assets/img/img_aec3f34369039611.png");
-  background-size:100% 100%;background-repeat:no-repeat;
-  border-radius:11px;padding:50px 14px 14px;flex:1;
-  display:flex;flex-direction:column;height:419px;
-  position:relative;
+  /* Field Report panel is now an image + HTML overlay (no SVG) */
+  background: none;
+  border-radius: 11px;
+  padding: 0;
+  flex: 1;
+  height: 419px;
+  position: relative;
+  overflow: hidden;
 }
 .log-entries{flex:1;overflow-y:auto;font-size:.62em;line-height:1.5;color:#6B3A2A;padding-top:4px}
 .log-entries::-webkit-scrollbar{width:3px}
@@ -157,7 +160,7 @@ body{
   overflow-y:auto;
   box-sizing:border-box;
   padding:10px 12px;
-  background: rgba(245, 210, 95, 0.78); /* yellow paper */
+  background:transparent;
   font-family:'Source Serif 4',Georgia,serif;
   font-size:14px;
   line-height:18px;
@@ -167,3 +170,38 @@ body{
 .fieldReportLog::-webkit-scrollbar{width:8px}
 .fieldReportLog::-webkit-scrollbar-thumb{border-radius:8px;background:rgba(0,0,0,.18)}
 .fieldReportLog::-webkit-scrollbar-track{background:transparent}
+
+
+/* === FIELD REPORT PANEL (PNG + HTML overlay) === */
+.field-report-panel{
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+.field-report-img{
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: fill;
+  pointer-events: none;
+  user-select: none;
+}
+/* The log overlay is positioned to match the PNG's text box area */
+.fieldReportLog{
+  position: absolute;
+  left: 7.01%;
+  top: 19.6%;
+  width: 78.66%;
+  height: 74.9%;
+  overflow-y: auto;
+  box-sizing: border-box;
+  padding: 10px 12px;
+  background: transparent;
+  font-family: 'Source Serif 4', Georgia, serif;
+  font-size: 14px;
+  line-height: 18px;
+  color: rgba(0,0,0,.86);
+  scrollbar-width: thin;
+}
