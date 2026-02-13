@@ -90,7 +90,7 @@ body{
 .roll-btn{
   font-family:'JetBrains Mono',monospace;font-weight:700;font-size:.8em;
   padding:12px 0;border-radius:7px;border:none;cursor:pointer;
-  color:#E8D4A8;background:#192917;width:100%;max-width:242px;
+  color:#E8D4A8;background:#192917;width:100%;max-width:258px;
   box-shadow:0 3px 10px rgba(0,0,0,.3);transition:all .2s;
   text-transform:uppercase;letter-spacing:2px;
 }
