@@ -8,10 +8,10 @@ body{
   background-size:cover;background-position:center;background-attachment:fixed;
   color:#2C1810;min-height:100vh;overflow-x:hidden;
 }
-.game-container{max-width:1200px;margin:0 auto;padding:10px 10px 16px}
+.game-container{max-width:1200px;margin:0 auto;padding:18px 10px 16px}
 .header{
   text-align:left;
-  padding:8px 0;
+  padding:8px 0 4px 0;  /* bottom padding controls distance */
 }
 .header img{
   margin-left:0;
@@ -226,8 +226,5 @@ body{
 
   margin-left: -6px;  /* nudge the whole box left */
 }
-/* === Tweak 3: vertical spacing of main layout === */
-.game-layout{
-  margin-top: 24px;
-}
+
 
