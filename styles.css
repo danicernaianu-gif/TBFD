@@ -226,4 +226,8 @@ body{
 
   margin-left: -6px;  /* nudge the whole box left */
 }
+/* === Tweak 3: vertical spacing of main layout === */
+.game-layout{
+  margin-top: 24px;
+}
 
