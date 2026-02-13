@@ -80,8 +80,8 @@ body{
   position:absolute;top:14px;right:14px;
   width:80px;height:81px;
   display:flex;align-items:center;justify-content:center;
-  font-family:'JetBrains Mono',monospace;font-size:28px;font-weight:900;
-  color:#3a2010;
+  font-family:'Roboto Mono', monospace;font-size:28px;font-weight:900;
+  color:#000000;
 }
 .dice-display.rolling{animation:shake .1s infinite}
 @keyframes shake{0%,100%{transform:rotate(0) scale(1)}25%{transform:rotate(-8deg) scale(1.05)}75%{transform:rotate(8deg) scale(1.05)}}
