@@ -85,7 +85,7 @@ body{
 }
 .dice-display.rolling{animation:shake .1s infinite}
 @keyframes shake{0%,100%{transform:rotate(0) scale(1)}25%{transform:rotate(-8deg) scale(1.05)}75%{transform:rotate(8deg) scale(1.05)}}
-.dice-inner{display:flex;flex-direction:column;padding-top:8px;margin-top:auto}
+.dice-inner{display:flex;flex-direction:column;padding-top:4px;margin-top:auto}
 .turn-info{font-size:.68em;color:#6B3A2A;font-style:italic;margin-bottom:8px}
 .roll-btn{
   font-family:'JetBrains Mono',monospace;font-weight:700;font-size:.8em;
