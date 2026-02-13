@@ -88,8 +88,8 @@ body{
 .dice-inner{display:flex;flex-direction:column;padding-top:4px;margin-top:auto}
 .turn-info{
   font-size:.68em;
-  color:#6B3A2A;
-  font-style:italic;
+  color:#000;
+  font-style:normal;
   margin-bottom:8px;
   font-family:'Roboto Mono', monospace;
 }
