@@ -8,7 +8,7 @@ body{
   background-size:cover;background-position:center;background-attachment:fixed;
   color:#2C1810;min-height:100vh;overflow-x:hidden;
 }
-.game-container{max-width:1200px;margin:0 auto;padding:118px 10px 16px}
+.game-container{max-width:1200px;margin:0 auto;padding:70px 10px 16px}
 .header{
   text-align:left;
   padding:8px 0 4px 0;  /* bottom padding controls distance */
