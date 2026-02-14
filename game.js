@@ -42,7 +42,7 @@ function playDiceSound(){
   g.connect(ctx.destination);
   o.start();
   o.stop(ctx.currentTime + 0.25);
-}
+
 function pN(i){return `<span style="color:${PLAYERS[i].ch};font-weight:700">${PLAYERS[i].name}</span>`}
 const HC=[
 {n:'Good Yield',e:'Move forward 3 spaces.',f:'The wheat gods smile upon you.',a:p=>{mv(p,3)}},
