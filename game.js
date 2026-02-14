@@ -25,7 +25,24 @@ const SQ=[
 {t:'mudfield',l:'Mud'},{t:'harvest',l:'Harvest'},{t:'pub',l:'THE PUB'},{t:'sabotage',l:'Sabotage'},
 {t:'shortcut',l:'Tractor!'},{t:'harvest',l:'Harvest'},{t:'sabotage',l:'Sabotage'},{t:'fragment',l:'FRAGMENT'},
 {t:'mudfield',l:'Mud'},{t:'blessing',l:'Blessing'},{t:'sabotage',l:'Sabotage'},{t:'harvest',l:'Harvest'}
-];
+];// === Sound effects ===
+function playDiceSound(){
+  const ctx = new (window.AudioContext || window.webkitAudioContext)();
+  const o = ctx.createOscillator();
+  const g = ctx.createGain();
+
+  o.type = 'triangle';
+  o.frequency.setValueAtTime(180, ctx.currentTime);
+  o.frequency.exponentialRampToValueAtTime(40, ctx.currentTime + 0.25);
+
+  g.gain.setValueAtTime(0.15, ctx.currentTime);
+  g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.25);
+
+  o.connect(g);
+  g.connect(ctx.destination);
+  o.start();
+  o.stop(ctx.currentTime + 0.25);
+}
 function pN(i){return `<span style="color:${PLAYERS[i].ch};font-weight:700">${PLAYERS[i].name}</span>`}
 const HC=[
 {n:'Good Yield',e:'Move forward 3 spaces.',f:'The wheat gods smile upon you.',a:p=>{mv(p,3)}},
@@ -113,7 +130,7 @@ function setAa(h){document.getElementById('aa').innerHTML=h||''}
 
 function rollDice(){
 const p=S.cur,s=S.p[p];if(S.phase!=='roll')return;
-if(s.skip){s.skip=false;log(p,'misses turn.');nextTurn();return}
+if(s.skip){s.skip=false;log(p,'misses turn.');nextTurn();return}playDiceSound();
 S.phase='rolling';document.getElementById('rb').disabled=true;
 const dd=document.getElementById('dd');dd.classList.add('rolling');
 let r=15,iv=setInterval(()=>{dd.textContent=Math.floor(Math.random()*6)+1;r--;
