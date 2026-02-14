@@ -26,22 +26,15 @@ const SQ=[
 {t:'shortcut',l:'Tractor!'},{t:'harvest',l:'Harvest'},{t:'sabotage',l:'Sabotage'},{t:'fragment',l:'FRAGMENT'},
 {t:'mudfield',l:'Mud'},{t:'blessing',l:'Blessing'},{t:'sabotage',l:'Sabotage'},{t:'harvest',l:'Harvest'}
 ];// === Sound effects ===
+const diceSfx = new Audio('assets/sfx/dice.mp3');
+diceSfx.volume = 0.7;
+
 function playDiceSound(){
   diceSfx.currentTime = 0;
   diceSfx.play();
 }
 
-  o.type = 'triangle';
-  o.frequency.setValueAtTime(180, ctx.currentTime);
-  o.frequency.exponentialRampToValueAtTime(40, ctx.currentTime + 0.25);
 
-  g.gain.setValueAtTime(0.15, ctx.currentTime);
-  g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.25);
-
-  o.connect(g);
-  g.connect(ctx.destination);
-  o.start();
-  o.stop(ctx.currentTime + 0.25);
 
 function pN(i){return `<span style="color:${PLAYERS[i].ch};font-weight:700">${PLAYERS[i].name}</span>`}
 const HC=[
