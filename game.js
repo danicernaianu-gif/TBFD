@@ -27,9 +27,9 @@ const SQ=[
 {t:'mudfield',l:'Mud'},{t:'blessing',l:'Blessing'},{t:'sabotage',l:'Sabotage'},{t:'harvest',l:'Harvest'}
 ];// === Sound effects ===
 function playDiceSound(){
-  const ctx = new (window.AudioContext || window.webkitAudioContext)();
-  const o = ctx.createOscillator();
-  const g = ctx.createGain();
+  diceSfx.currentTime = 0;
+  diceSfx.play();
+}
 
   o.type = 'triangle';
   o.frequency.setValueAtTime(180, ctx.currentTime);
