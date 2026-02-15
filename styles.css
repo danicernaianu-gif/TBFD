@@ -235,33 +235,39 @@ body{
 
 
 
-/* Force sabotage card background */
+/* === SABOTAGE CARD: lock size + force styling === */
 #cardPop.card-popup.sabotage{
-  background: url("assets/img/sabotage-card-bg.png") center / contain no-repeat !important;
+  width: 382px !important;
+  height: 247px !important;
+  box-sizing: border-box;
+  padding: 26px 22px 18px 22px;
+
+  background: url("assets/img/sabotage-card-bg.png") center / 382px 247px no-repeat !important;
 }
 
-/* Sabotage card text (white + Roboto Mono, but not buttons) */
-#cardPop.card-popup.sabotage{
-  color:#fff;
-  font-family:'Roboto Mono', monospace;
-}
-
-#cardPop.card-popup.sabotage :not(button){
-  color:#fff;
-  font-family:'Roboto Mono', monospace;
+/* Force ALL sabotage card text to white + Roboto Mono */
+#cardPop.card-popup.sabotage,
+#cardPop.card-popup.sabotage #cType,
+#cardPop.card-popup.sabotage #cName,
+#cardPop.card-popup.sabotage #cEff,
+#cardPop.card-popup.sabotage #cFlav{
+  color:#fff !important;
+  font-family:'Roboto Mono', monospace !important;
 }
 
 /* Hide duplicate SABOTAGE label (PNG already has it) */
 #cardPop.card-popup.sabotage #cType{
-  display:none;
+  display:none !important;
 }
 
 /* Sabotage button = black */
 #cardPop.card-popup.sabotage button{
-  background:#000;
-  color:#fff;
-  font-family:'Roboto Mono', monospace;
-  border:1px solid rgba(255,255,255,0.4);
+  background:#000 !important;
+  color:#fff !important;
+  font-family:'Roboto Mono', monospace !important;
+  border:1px solid rgba(255,255,255,0.45) !important;
+  padding:10px 14px;
+  border-radius:10px;
 }
 
 #cardPop.card-popup.sabotage button:hover{
