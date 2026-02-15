@@ -274,6 +274,7 @@ body{
   background:#111;
 }
 /* Sabotage card: vertically center content block */
-#cardPop.card-popup.sabotage .card-body{
-  padding-top: 14px;   /* try 10–18px */
+#cardPop.card-popup.sabotage{
+  padding-top: 38px;   /* increases top padding only */
 }
+
