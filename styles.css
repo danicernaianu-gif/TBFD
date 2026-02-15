@@ -143,14 +143,7 @@ body{
 .card-popup{width:300px;border-radius:14px;padding:22px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.5);animation:cardIn .35s cubic-bezier(.34,1.56,.64,1)}
 @keyframes cardIn{from{transform:scale(.7) rotateY(90deg);opacity:0}to{transform:scale(1) rotateY(0);opacity:1}}
 .card-popup.harvest{background:linear-gradient(145deg,#FFF8DC,#F5E6A8);border:3px solid #D4A847}
-.card-popup.sabotage{
-  width: 382px;
-  height: 247px;
-  background-image: url("assets/img/SABOTAGE CARD BG.png");
-  background-size: 382px 247px; /* exact pixel match */
-  background-repeat: no-repeat;
-  background-position: center;
-}
+
 .card-popup .ct{font-family:'JetBrains Mono',monospace;font-size:.58em;text-transform:uppercase;letter-spacing:3px;margin-bottom:5px}
 .card-popup .cn{font-family:'Playfair Display',serif;font-size:1.2em;font-weight:900;margin-bottom:8px}
 .card-popup .ce{font-size:.82em;line-height:1.5;margin-bottom:10px;color:#444}
@@ -239,18 +232,38 @@ body{
 
   margin-left: -6px;  /* nudge the whole box left */
 }
-/* Sabotage card text styling */
-.card-popup.sabotage,
-.card-popup.sabotage *{
-  color:#ffffff;
-  font-family:'Roboto Mono', monospace;
-}
+
 
 
 /* Force sabotage card background */
 #cardPop.card-popup.sabotage{
   background: url("assets/img/sabotage-card-bg.png") center / contain no-repeat !important;
 }
-#cardPop.card-popup.sabotage *{
-  background: transparent;
+
+/* Sabotage card text (white + Roboto Mono, but not buttons) */
+#cardPop.card-popup.sabotage{
+  color:#fff;
+  font-family:'Roboto Mono', monospace;
+}
+
+#cardPop.card-popup.sabotage :not(button){
+  color:#fff;
+  font-family:'Roboto Mono', monospace;
+}
+
+/* Hide duplicate SABOTAGE label (PNG already has it) */
+#cardPop.card-popup.sabotage #cType{
+  display:none;
+}
+
+/* Sabotage button = black */
+#cardPop.card-popup.sabotage button{
+  background:#000;
+  color:#fff;
+  font-family:'Roboto Mono', monospace;
+  border:1px solid rgba(255,255,255,0.4);
+}
+
+#cardPop.card-popup.sabotage button:hover{
+  background:#111;
 }
