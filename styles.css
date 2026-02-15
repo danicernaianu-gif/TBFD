@@ -247,3 +247,10 @@ body{
 }
 
 
+/* Force sabotage card background */
+#cardPop.card-popup.sabotage{
+  background: url("assets/img/sabotage-card-bg.png") center / contain no-repeat !important;
+}
+#cardPop.card-popup.sabotage *{
+  background: transparent;
+}
