@@ -273,3 +273,7 @@ body{
 #cardPop.card-popup.sabotage button:hover{
   background:#111;
 }
+/* Sabotage card: vertically center content block */
+#cardPop.card-popup.sabotage .card-body{
+  padding-top: 14px;   /* try 10–18px */
+}
