@@ -144,10 +144,10 @@ body{
 @keyframes cardIn{from{transform:scale(.7) rotateY(90deg);opacity:0}to{transform:scale(1) rotateY(0);opacity:1}}
 .card-popup.harvest{background:linear-gradient(145deg,#FFF8DC,#F5E6A8);border:3px solid #D4A847}
 .card-popup.sabotage{
-  background-image:url("assets/img/sabotage-card-bg.png");
-  background-size:cover;
-  background-position:center;
-  background-repeat:no-repeat;
+  background-image: url("assets/img/SABOTAGE CARD BG.png");
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
 }
 .card-popup .ct{font-family:'JetBrains Mono',monospace;font-size:.58em;text-transform:uppercase;letter-spacing:3px;margin-bottom:5px}
 .card-popup .cn{font-family:'Playfair Display',serif;font-size:1.2em;font-weight:900;margin-bottom:8px}
@@ -236,6 +236,12 @@ body{
   padding: 0px 19px;
 
   margin-left: -6px;  /* nudge the whole box left */
+}
+/* Sabotage card text styling */
+.card-popup.sabotage,
+.card-popup.sabotage *{
+  color:#ffffff;
+  font-family:'Roboto Mono', monospace;
 }
 
 
