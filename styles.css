@@ -143,7 +143,12 @@ body{
 .card-popup{width:300px;border-radius:14px;padding:22px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.5);animation:cardIn .35s cubic-bezier(.34,1.56,.64,1)}
 @keyframes cardIn{from{transform:scale(.7) rotateY(90deg);opacity:0}to{transform:scale(1) rotateY(0);opacity:1}}
 .card-popup.harvest{background:linear-gradient(145deg,#FFF8DC,#F5E6A8);border:3px solid #D4A847}
-.card-popup.sabotage{background:linear-gradient(145deg,#FFE8E5,#FFCCCC);border:3px solid #C0392B}
+.card-popup.sabotage{
+  background-image:url("assets/img/sabotage-card-bg.png");
+  background-size:cover;
+  background-position:center;
+  background-repeat:no-repeat;
+}
 .card-popup .ct{font-family:'JetBrains Mono',monospace;font-size:.58em;text-transform:uppercase;letter-spacing:3px;margin-bottom:5px}
 .card-popup .cn{font-family:'Playfair Display',serif;font-size:1.2em;font-weight:900;margin-bottom:8px}
 .card-popup .ce{font-size:.82em;line-height:1.5;margin-bottom:10px;color:#444}
