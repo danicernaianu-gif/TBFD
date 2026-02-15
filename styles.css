@@ -278,3 +278,32 @@ body{
   padding-top: 42px;   /* increases top padding only */
 }
 
+/* === HARVEST CARD: lock size + background + typography === */
+#cardPop.card-popup.harvest{
+  width: 382px !important;
+  height: 247px !important;
+  box-sizing: border-box;
+  padding: 42px 22px 18px 22px; /* (top, right, bottom, left) */
+
+  background: url("assets/img/harvest-card-bg.png") center / 382px 247px no-repeat !important;
+}
+
+/* Force ALL harvest card text to black + Roboto Mono */
+#cardPop.card-popup.harvest,
+#cardPop.card-popup.harvest #cType,
+#cardPop.card-popup.harvest #cName,
+#cardPop.card-popup.harvest #cEff,
+#cardPop.card-popup.harvest #cFlav{
+  color:#000 !important;
+  font-family:'Roboto Mono', monospace !important;
+}
+
+/* Hide duplicate HARVEST label (PNG already has it) */
+#cardPop.card-popup.harvest #cType{
+  display:none !important;
+}
+
+/* Keep existing button styles, only change font */
+#cardPop.card-popup.harvest button{
+  font-family:'Roboto Mono', monospace !important;
+}
