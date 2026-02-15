@@ -144,8 +144,10 @@ body{
 @keyframes cardIn{from{transform:scale(.7) rotateY(90deg);opacity:0}to{transform:scale(1) rotateY(0);opacity:1}}
 .card-popup.harvest{background:linear-gradient(145deg,#FFF8DC,#F5E6A8);border:3px solid #D4A847}
 .card-popup.sabotage{
+  width: 382px;
+  height: 247px;
   background-image: url("assets/img/SABOTAGE CARD BG.png");
-  background-size: contain;
+  background-size: 382px 247px; /* exact pixel match */
   background-repeat: no-repeat;
   background-position: center;
 }
